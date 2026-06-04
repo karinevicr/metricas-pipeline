@@ -6,11 +6,14 @@ id_counter = 1
 
 @app.route('/')
 def home():
-    return {"mensagem": "API de Tarefas funcionando!", "endpoints": ["/tarefas", "/slow"]}
+    return {"mensagem": "API de Tarefas funcionando!", 
+            "endpoints": ["/tarefas", "/slow"]}
+
 
 @app.route('/tarefas', methods=['GET'])
 def listar():
     return jsonify(tarefas)
+
 
 @app.route('/tarefas/<int:id>', methods=['GET'])
 def buscar(id):
@@ -18,6 +21,7 @@ def buscar(id):
         if tarefa['id'] == id:
             return jsonify(tarefa)
     return {'erro': 'Tarefa nao encontrada'}, 404
+
 
 @app.route('/tarefas', methods=['POST'])
 def criar():
@@ -32,11 +36,13 @@ def criar():
     id_counter += 1
     return jsonify(tarefa), 201
 
+
 @app.route('/tarefas/<int:id>', methods=['DELETE'])
 def deletar(id):
     global tarefas
     tarefas = [t for t in tarefas if t['id'] != id]
     return '', 204
+
 
 @app.route('/tarefas/<int:id>', methods=['PUT'])
 def atualizar(id):
@@ -48,12 +54,14 @@ def atualizar(id):
             return jsonify(t)
     return {'erro': 'Tarefa nao encontrada'}, 404
 
+
 # Para teste lento
 @app.route('/slow')
 def slow():
     import time
     time.sleep(2)
     return {'status': 'lento'}
+
 
 if __name__ == '__main__':
     app.run(debug=True)
