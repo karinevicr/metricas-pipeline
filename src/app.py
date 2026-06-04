@@ -4,9 +4,10 @@ app = Flask(__name__)
 tarefas = []
 id_counter = 1
 
+
 @app.route('/')
 def home():
-    return {"mensagem": "API de Tarefas funcionando!", 
+    return {"mensagem": "API de Tarefas funcionando!",
             "endpoints": ["/tarefas", "/slow"]}
 
 
