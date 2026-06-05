@@ -1,0 +1,9 @@
+run_id,commit_sha,commit_message,status,workflow_duration,job_name,job_duration,test_count,test_failures,timestamp,artifact_size,failure_type
+26985758035,b8fa90a,fix: arruma erros de lint,success,2026-06-04T23:28:36Z,build-and-test,2026-06-04T23:28:35Z,0,0,2026-06-04T23:28:11Z,407,
+26984457712,074e116,fix: arruma erros de lint,failure,2026-06-04T22:54:45Z,build-and-test,2026-06-04T22:54:44Z,,,2026-06-04T22:54:28Z,0,test_failure
+26984384761,70da4a2,fix: arruma erros de lint,failure,2026-06-04T22:52:54Z,build-and-test,2026-06-04T22:52:54Z,,,2026-06-04T22:52:41Z,0,test_failure
+26984343568,0cc5810,fix: arruma erros de lint,failure,2026-06-04T22:51:59Z,build-and-test,2026-06-04T22:51:59Z,,,2026-06-04T22:51:44Z,0,test_failure
+26984244025,9f8add3,fix: arruma erros de lint,failure,2026-06-04T22:49:26Z,build-and-test,2026-06-04T22:49:25Z,,,2026-06-04T22:49:14Z,0,test_failure
+26984051748,5b295f5,fix corrige erros de lint,failure,2026-06-04T22:44:42Z,build-and-test,2026-06-04T22:44:41Z,,,2026-06-04T22:44:25Z,0,test_failure
+26983932803,823c863,fix: arruma nome de pastas,failure,2026-06-04T22:41:46Z,build-and-test,2026-06-04T22:41:45Z,,,2026-06-04T22:41:31Z,0,test_failure
+26981758279,a343c26,feat: arruma estrtura de pastas para a pipeline,failure,2026-06-04T21:51:23Z,build-and-test,2026-06-04T21:51:23Z,,,2026-06-04T21:51:14Z,0,test_failure
