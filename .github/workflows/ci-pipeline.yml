@@ -9,6 +9,8 @@ jobs:
   # Job principal com tudo
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
     
     steps:
     - name: Checkout código
@@ -39,7 +41,7 @@ jobs:
     
     - name: Executar testes
       run: |
-        pytest tests/ -v --tb=short --junitxml=test-results.xml
+        python -m pytest tests/ -v --tb=short --junitxml=test-results.xml
     
     - name: Gerar artefato com resultados
       uses: actions/upload-artifact@v4
