@@ -51,8 +51,8 @@ def test_endpoint_lento(client):
     assert resp.status_code == 200
 
 
-@pytest.mark.parametrize('indice', range(1, 101))
-def test_carga_artificial_de_testes_100(client, indice):
+@pytest.mark.parametrize('indice', range(1, 151))
+def test_carga_artificial_de_testes_150(client, indice):
     resp = client.get('/tarefas')
     assert resp.status_code == 200
     assert indice >= 1
