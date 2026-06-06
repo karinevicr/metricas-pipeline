@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import time
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
@@ -45,13 +46,6 @@ def test_busca_inexistente(client):
 
 # Teste lento (para variação)
 def test_endpoint_lento(client):
+    time.sleep(3)
     resp = client.get('/slow')
     assert resp.status_code == 200
-
-
-@pytest.mark.parametrize('indice', range(1, 51))
-def test_carga_artificial_de_testes(client, indice):
-    # Gera 50 casos artificiais para experimento de volume de testes.
-    resp = client.get('/tarefas')
-    assert resp.status_code == 200
-    assert isinstance(indice, int)
