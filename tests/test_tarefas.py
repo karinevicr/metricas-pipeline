@@ -46,6 +46,6 @@ def test_busca_inexistente(client):
 
 # Teste lento (para variação)
 def test_endpoint_lento(client):
-    time.sleep(3)
+    time.sleep(30)
     resp = client.get('/slow')
     assert resp.status_code == 200
