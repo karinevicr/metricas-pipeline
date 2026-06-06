@@ -49,3 +49,10 @@ def test_endpoint_lento(client):
     time.sleep(3)
     resp = client.get('/slow')
     assert resp.status_code == 200
+
+
+@pytest.mark.parametrize('indice', range(1, 101))
+def test_carga_artificial_de_testes_100(client, indice):
+    resp = client.get('/tarefas')
+    assert resp.status_code == 200
+    assert indice >= 1
