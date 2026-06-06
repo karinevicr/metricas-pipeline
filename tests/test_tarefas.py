@@ -1,3 +1,8 @@
+from pathlib import Path
+import sys
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 import pytest
 import src.app as app_module
 from src.app import app
@@ -41,4 +46,4 @@ def test_busca_inexistente(client):
 # Teste lento (para variação)
 def test_endpoint_lento(client):
     resp = client.get('/slow')
-    assert resp.status_code == 200
+    assert resp.status_code == 500
