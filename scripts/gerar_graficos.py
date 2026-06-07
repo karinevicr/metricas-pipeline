@@ -13,29 +13,34 @@ GRAFICOS_DIR.mkdir(parents=True, exist_ok=True)
 # Carregar os dados do CSV
 df = pd.read_csv(CSV_FILE)
 
+# O CSV agora pode ter uma linha por step; os gráficos principais usam um nível agregado.
+df_execucao = df.drop_duplicates(subset=['run_id']).copy()
+df_jobs = df.drop_duplicates(subset=['run_id', 'job_name']).copy()
+
 # Converter timestamps para datetime
-df['timestamp'] = pd.to_datetime(df['timestamp'])
-df['workflow_duration'] = pd.to_datetime(df['workflow_duration'])
-df['job_duration'] = pd.to_datetime(df['job_duration'])
+df_execucao['timestamp'] = pd.to_datetime(df_execucao['timestamp'])
+df_execucao['workflow_duration'] = pd.to_datetime(df_execucao['workflow_duration'])
+df_jobs['timestamp'] = pd.to_datetime(df_jobs['timestamp'])
+df_jobs['job_duration'] = pd.to_datetime(df_jobs['job_duration'])
 
 # Durações em segundos
-df['workflow_seconds'] = (df['workflow_duration'] - df['timestamp']).dt.total_seconds()
-df['job_seconds'] = (df['job_duration'] - df['timestamp']).dt.total_seconds()
+df_execucao['workflow_seconds'] = (df_execucao['workflow_duration'] - df_execucao['timestamp']).dt.total_seconds()
+df_jobs['job_seconds'] = (df_jobs['job_duration'] - df_jobs['timestamp']).dt.total_seconds()
 
 # Ordenar por data
-df = df.sort_values('timestamp')
-df = df.reset_index(drop=True)
-df['execucao'] = df.index + 1
+df_execucao = df_execucao.sort_values('timestamp')
+df_execucao = df_execucao.reset_index(drop=True)
+df_execucao['execucao'] = df_execucao.index + 1
 
-print(f"📊 Gerando gráficos com {len(df)} execuções...")
+print(f"📊 Gerando gráficos com {len(df_execucao)} execuções e {len(df_jobs)} jobs...")
 
 # ============================================
 # GRÁFICO 1: Tempo total do pipeline por execução
 # ============================================
 plt.figure(figsize=(12, 6))
-cores_status = ['#2E86DE' if s == 'success' else '#E74C3C' for s in df['status']]
-plt.bar(df['execucao'], df['workflow_seconds'], color=cores_status, width=0.7)
-plt.xticks(df['execucao'], [f"{i}\n{sha}" for i, sha in zip(df['execucao'], df['commit_sha'])], rotation=0)
+cores_status = ['#2E86DE' if s == 'success' else '#E74C3C' for s in df_execucao['status']]
+plt.bar(df_execucao['execucao'], df_execucao['workflow_seconds'], color=cores_status, width=0.7)
+plt.xticks(df_execucao['execucao'], [f"{i}\n{sha}" for i, sha in zip(df_execucao['execucao'], df_execucao['commit_sha'])], rotation=0)
 plt.xlabel('Execução / SHA curto')
 plt.ylabel('Duração (segundos)')
 plt.title('Tempo total do pipeline por execução')
@@ -53,7 +58,7 @@ print("  ✅ Gráfico 1: tempo_total.png")
 # GRÁFICO 2: Tempo por job
 # ============================================
 # Agrupar por job_name e calcular média
-job_times = df.groupby('job_name')['job_seconds'].mean().sort_values()
+job_times = df_jobs.groupby('job_name')['job_seconds'].mean().sort_values()
 
 plt.figure(figsize=(10, 6))
 job_times.plot(kind='barh', color='skyblue')
@@ -68,7 +73,7 @@ print("  ✅ Gráfico 2: tempo_por_job.png")
 # ============================================
 # GRÁFICO 3: Taxa de sucesso e falha
 # ============================================
-status_counts = df['status'].value_counts()
+status_counts = df_execucao['status'].value_counts()
 
 plt.figure(figsize=(8, 8))
 colors = ['green' if s == 'success' else 'red' for s in status_counts.index]
@@ -83,7 +88,7 @@ print("  ✅ Gráfico 3: taxa_sucesso.png")
 # GRÁFICO 4: Relação qtd testes × duração
 # ============================================
 # Filtrar apenas execuções com dados de teste
-df_testes = df.dropna(subset=['test_count'])
+df_testes = df_execucao.dropna(subset=['test_count'])
 
 plt.figure(figsize=(10, 6))
 if len(df_testes) < 2:
