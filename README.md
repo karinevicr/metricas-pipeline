@@ -73,10 +73,10 @@ O script `coleta_metricas.py` utiliza a API do GitHub para:
 
 | Indicador | Valor |
 |-----------|-------|
-| Duração média | 33,33 s |
-| Mediana da duração | 30,5 s |
-| Menor duração observada | 9 s |
-| Maior duração observada | 61 s |
+| Duração média | 38,4 s |
+| Mediana da duração | 36 s |
+| Menor duração observada | 13 s |
+| Maior duração observada | 66 s |
 
 ### Tipos de falha identificados
 
@@ -89,18 +89,18 @@ O script `coleta_metricas.py` utiliza a API do GitHub para:
 
 | Run ID | Commit | Mensagem | Status | Duração | Artefato |
 |--------|--------|----------|--------|---------|----------|
-| 27095948645 | 19427f0 | exp: pipeline com testes passando | ✅ success | 31 s | 410 B |
-| 27095909785 | db2f504 | exp: teste que consome muita memoria | ✅ success | 32 s | 427 B |
-| 27095595987 | e206ca3 | exp: pipeline sem testes | ❌ failure | 23 s | 0 B |
-| 27095465456 | a555129 | exp: roda testes em sequencia | ✅ success | 55 s | 412 B |
-| 27095372028 | a65917c | exp: altera ordem de jobs | ✅ success | 27 s | 411 B |
-| 27095241514 | 05f2b19 | exp: teste lento (30 segundos) | ✅ success | 61 s | 413 B |
-| 27095230828 | 7dd2851 | exp: teste lento (15 segundos) | ✅ success | 40 s | 412 B |
-| 27095220609 | 41efb57 | exp: teste lento (5 segundos) | ✅ success | 34 s | 411 B |
-| 27095126439 | b083c6b | exp: requirements quebrado (lib fake) | ❌ failure | 9 s | 0 B |
-| 27095052830 | a2de59c | exp: + 150 testes | ✅ success | 30 s | 874 B |
-| 27095034559 | 595eca1 | exp: + 50 testes | ✅ success | 30 s | 581 B |
-| 27094915826 | b8468c3 | exp: teste falhando | ❌ failure | 28 s | 0 B |
+| 27095948645 | 19427f0 | exp: pipeline com testes passando | ✅ success | 35 s | 410 B |
+| 27095909785 | db2f504 | exp: teste que consome muita memoria | ✅ success | 38 s | 427 B |
+| 27095595987 | e206ca3 | exp: pipeline sem testes | ❌ failure | 28 s | 0 B |
+| 27095465456 | a555129 | exp: roda testes em sequencia | ✅ success | 61 s | 412 B |
+| 27095372028 | a65917c | exp: altera ordem de jobs | ✅ success | 31 s | 411 B |
+| 27095241514 | 05f2b19 | exp: teste lento (30 segundos) | ✅ success | 66 s | 413 B |
+| 27095230828 | 7dd2851 | exp: teste lento (15 segundos) | ✅ success | 44 s | 412 B |
+| 27095220609 | 41efb57 | exp: teste lento (5 segundos) | ✅ success | 40 s | 411 B |
+| 27095126439 | b083c6b | exp: requirements quebrado (lib fake) | ❌ failure | 13 s | 0 B |
+| 27095052830 | a2de59c | exp: + 150 testes | ✅ success | 37 s | 874 B |
+| 27095034559 | 595eca1 | exp: + 50 testes | ✅ success | 35 s | 581 B |
+| 27094915826 | b8468c3 | exp: teste falhando | ❌ failure | 33 s | 0 B |
 
 ## 🔍 Análise dos Resultados
 
@@ -108,7 +108,7 @@ O script `coleta_metricas.py` utiliza a API do GitHub para:
 
 O maior impacto no tempo total do pipeline está concentrado na **execução dos testes**. Esta conclusão é evidenciada pelos experimentos com "teste lento":
 
-- O run `27095241514` (30 segundos de espera artificial) atingiu **61 segundos** — o dobro da média
+- O run `27095241514` (30 segundos de espera artificial) atingiu **66 segundos** — o dobro da média
 - Observa-se correlação praticamente linear entre tempo de teste e duração total
 
 ### 2. Efeito do cache de dependências
@@ -133,9 +133,9 @@ As falhas observadas se distribuíram da seguinte forma:
 
 ### 5. Feedback para desenvolvimento
 
-Com média de aproximadamente 33 segundos por execução, o pipeline oferece **feedback rápido** para o ciclo de desenvolvimento. 
+Com média de aproximadamente 38 segundos por execução, o pipeline oferece **feedback rápido** para o ciclo de desenvolvimento. 
 
-**Ponto de atenção**: Experimentos com testes lentos propositais (30 segundos) elevaram o tempo para aproximadamente 60 segundos, patamar que começa a impactar a fluidez do desenvolvimento local e da integração contínua.
+**Ponto de atenção**: Experimentos com testes lentos propositais (30 segundos) elevaram o tempo para aproximadamente 66 segundos, patamar que começa a impactar a fluidez do desenvolvimento local e da integração contínua.
 
 ## ⚠️ Limitações do Experimento
 

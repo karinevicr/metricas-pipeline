@@ -38,10 +38,10 @@ A base atual contém 12 execuções do workflow e 204 linhas no CSV.
 
 - Execuções com sucesso: 9
 - Execuções com falha: 3
-- Duração média por execução: 33,33 s
-- Mediana da duração por execução: 30,5 s
-- Menor duração: 9 s
-- Maior duração: 61 s
+- Duração média por execução: 38,4 s
+- Mediana da duração por execução: 36 s
+- Menor duração: 13 s
+- Maior duração: 66 s
 
 ### 4.2 Falhas observadas
 
@@ -52,26 +52,26 @@ A base atual contém 12 execuções do workflow e 204 linhas no CSV.
 
 | Run ID | Commit | Mensagem | Status | Duração estimada | Artefato |
 | --- | --- | --- | --- | --- | --- |
-| 27095948645 | 19427f0 | exp: pipeline com testes passando | success | 31 s | 410 bytes |
-| 27095909785 | db2f504 | exp: teste que consome muita memoria | success | 32 s | 427 bytes |
-| 27095595987 | e206ca3 | exp: pipeline sem testes | failure | 23 s | 0 bytes |
-| 27095465456 | a555129 | exp: roda testes em sequencia | success | 55 s | 412 bytes |
-| 27095372028 | a65917c | exp: altera ordem de jobs | success | 27 s | 411 bytes |
-| 27095241514 | 05f2b19 | exp: teste lento (30 segundos) | success | 61 s | 413 bytes |
-| 27095230828 | 7dd2851 | exp: teste lento (15 segundos) | success | 40 s | 412 bytes |
-| 27095220609 | 41efb57 | exp: teste lento (5 segundos) | success | 34 s | 411 bytes |
-| 27095126439 | b083c6b | exp: requirements quebrado (lib fake) | failure | 9 s | 0 bytes |
-| 27095052830 | a2de59c | exp: + 150 testes | success | 30 s | 874 bytes |
-| 27095034559 | 595eca1 | exp: + 50 testes | success | 30 s | 581 bytes |
-| 27094915826 | b8468c3 | exp: teste falhando | failure | 28 s | 0 bytes |
+| 27095948645 | 19427f0 | exp: pipeline com testes passando | success | 35 s | 410 bytes |
+| 27095909785 | db2f504 | exp: teste que consome muita memoria | success | 38 s | 427 bytes |
+| 27095595987 | e206ca3 | exp: pipeline sem testes | failure | 28 s | 0 bytes |
+| 27095465456 | a555129 | exp: roda testes em sequencia | success | 61 s | 412 bytes |
+| 27095372028 | a65917c | exp: altera ordem de jobs | success | 31 s | 411 bytes |
+| 27095241514 | 05f2b19 | exp: teste lento (30 segundos) | success | 66 s | 413 bytes |
+| 27095230828 | 7dd2851 | exp: teste lento (15 segundos) | success | 44 s | 412 bytes |
+| 27095220609 | 41efb57 | exp: teste lento (5 segundos) | success | 40 s | 411 bytes |
+| 27095126439 | b083c6b | exp: requirements quebrado (lib fake) | failure | 13 s | 0 bytes |
+| 27095052830 | a2de59c | exp: + 150 testes | success | 37 s | 874 bytes |
+| 27095034559 | 595eca1 | exp: + 50 testes | success | 35 s | 581 bytes |
+| 27094915826 | b8468c3 | exp: teste falhando | failure | 33 s | 0 bytes |
 
 ## 5. Leitura dos resultados
 
 ### 5.1 Tempo total
 
-O tempo médio por execução ficou em torno de 33 segundos. Isso sugere um feedback razoavelmente rápido para um fluxo de desenvolvimento local, especialmente considerando que o pipeline contém duas validações distintas: testes e lint.
+O tempo médio por execução ficou em torno de 38,4 segundos. Isso sugere um feedback razoavelmente rápido para um fluxo de desenvolvimento local, especialmente considerando que o pipeline contém duas validações distintas: testes e lint.
 
-O run mais lento foi o `27095241514`, com 61 s, motivado pelo teste com espera artificial de 30 segundos. Esse resultado mostra que a natureza do teste pesa mais do que o número bruto de casos.
+O run mais lento foi o `27095241514`, com 66 s, motivado pelo teste com espera artificial de 30 segundos. Esse resultado mostra que a natureza do teste pesa mais do que o número bruto de casos.
 
 ### 5.2 Falhas e comportamento de encerramento
 
