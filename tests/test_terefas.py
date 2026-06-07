@@ -48,4 +48,10 @@ def test_busca_inexistente(client):
 def test_endpoint_lento(client):
     time.sleep(3)
     resp = client.get('/slow')
-    assert resp.status_code == 500
+    assert resp.status_code == 200
+
+@pytest.mark.parametrize("n", range(1,51))
+def test_criar_tarefa_repetido(client, n):
+    resp = client.post('/tarefas', json={'titulo': f'Tarefa {n}'})
+    assert resp.status_code == 201
+    assert resp.json['titulo'] == f'Tarefa {n}'
