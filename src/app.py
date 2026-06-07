@@ -60,7 +60,7 @@ def atualizar(id):
 @app.route('/slow')
 def slow():
     import time
-    time.sleep(2)
+    time.sleep(5)
     return {'status': 'lento'}
 
 

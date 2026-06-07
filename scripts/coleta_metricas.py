@@ -148,7 +148,9 @@ def coletar_metricas():
         commit_message = run['head_commit']['message'] if run.get('head_commit') else ''
         status = run['conclusion'] if run['conclusion'] else run['status']
         timestamp = run['created_at']
-        workflow_duration = run.get('updated_at')
+        created_at = datetime.fromisoformat(run['created_at'].replace('Z', '+00:00'))
+        updated_at = datetime.fromisoformat(run['updated_at'].replace('Z', '+00:00'))
+        workflow_duration_seconds = (updated_at - created_at).total_seconds()
         
         print(f"  [{i}] Run #{run_id}: {commit_sha[:7]} - {commit_message[:50]}")
         
@@ -183,7 +185,7 @@ def coletar_metricas():
                     'commit_sha': commit_sha,
                     'commit_message': commit_message,
                     'status': status,
-                    'workflow_duration': workflow_duration,
+                    'workflow_duration': workflow_duration_seconds,
                     'job_name': job_name,
                     'job_duration': job_duration,
                     'step_name': None,
@@ -213,7 +215,7 @@ def coletar_metricas():
                         'commit_sha': commit_sha,
                         'commit_message': commit_message,
                         'status': status,
-                        'workflow_duration': workflow_duration,
+                        'workflow_duration': workflow_duration_seconds,
                         'job_name': job_name,
                         'job_duration': job_duration,
                         'step_name': step.get('name'),

@@ -2,7 +2,6 @@
 
 **Autora:** Karine Victoria Rosa da Paixão
 
-
 ## 📌 Sobre o Projeto
 
 Este projeto tem como objetivo analisar o comportamento de um pipeline CI/CD real de uma API de tarefas desenvolvida em Flask. Através da coleta sistemática de métricas de execução do GitHub Actions, busca-se compreender padrões de desempenho, identificar gargalos e avaliar o impacto de diferentes cenários de teste no tempo total de execução do pipeline.
@@ -14,7 +13,6 @@ Foram realizadas 12 execuções controladas do workflow, variando parâmetros co
 - Alterações na estrutura do workflow
 
 Cada execução foi registrada e analisada através de um script de coleta que utiliza a API do GitHub para extrair métricas detalhadas por step, job e execução.
-
 
 ## 📁 Entregáveis
 
@@ -150,6 +148,7 @@ Para uma interpretação correta dos resultados, é necessário reconhecer as se
 | Ausência de grupo controle sem cache | Impossibilidade de quantificar o ganho do cache |
 | Paralelismo não isolado experimentalmente | Ganho real do paralelismo não foi mensurado |
 | Artefatos disponíveis apenas em runs bem-sucedidos | Métricas de testes podem apresentar viés de seleção |
+| API do GitHub não retorna campo duration para repositórios públicos [fonte](https://docs.github.com/pt/actions/how-tos/monitor-workflows/view-job-execution-time) | As durações foram calculadas manualmente a partir dos timestamps dos jobs, introduzindo um pequeno overhead sistemático de aproximadamente 4 a 6 segundos por execução |
 
 ## Como Reproduzir o Experimento
 

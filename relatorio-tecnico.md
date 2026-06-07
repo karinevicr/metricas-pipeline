@@ -87,7 +87,39 @@ Os jobs estão independentes e podem executar em paralelo. Isso é bom para redu
 
 ## 6. Gráficos gerados
 
-Os gráficos ficam na pasta [graficos/](graficos):
+<div align="center">
+  <p> <b>Figura 1 </b> - Grafico 1</p>
+<img src="graficos/grafico1_tempo_total.png" alt="grafico 1" />
+  <p><b>Fonte:</b> Material elaborado pela autora.</p>
+</div>
+
+Execuções com falha (em vermelho) são visivelmente mais curtas que as bem-sucedidas, pois o pipeline interrompe o processamento ao encontrar um erro crítico - o caso mais extremo (b083c6b) durou apenas 13 segundos. O outlier de 66 segundos (05f2b19) evidencia o impacto de um teste com espera artificial de 30 segundos, mostrando que a natureza do teste pesa mais que sua quantidade. A maioria das execuções bem-sucedidas concentra-se na faixa de 30-40 segundos, indicando um custo fixo saudável para o pipeline.
+
+<div align="center">
+  <p> <b>Figura 2</b> - Grafico 2</p>
+<img src="graficos/grafico2_tempo_por_job.png" alt="grafico 2" />
+  <p><b>Fonte:</b> Material elaborado pela autora.</p>
+</div>
+
+O job de tests é o grande gargalo, com média de aproximadamente 35 segundos, enquanto o lint é mais leve (cerca de 29 segundos). Graças ao paralelismo entre os jobs (não há dependência explícita com needs), o tempo total do pipeline é dominado apenas pelo job mais lento (tests), e não pela soma de ambos - caso contrário, o pipeline levaria cerca de 60 segundos em vez dos 30-40 observados.
+
+<div align="center">
+  <p> <b>Figura 3</b> - Grafico 3</p>
+<img src="graficos/grafico3_taxa_sucesso.png" alt="grafico 3" />
+  <p><b>Fonte:</b> Material elaborado pela autora.</p>
+</div>
+
+O pipeline teve 75% de sucesso (9 em 12 execuções), o que é saudável para um ambiente de experimentação. As três falhas foram intencionais e permitiram observar diferentes modos de falha: setup quebrado (falha rápida em 13s), pipeline sem artefato de testes (falha intermediária em 28s) e teste falhando (falha após execução completa). Essa diversidade enriqueceu a análise do comportamento do CI/CD.
+
+<div align="center">
+  <p> <b>Figura 4</b> - Grafico 4</p>
+<img src="graficos/grafico4_testes_vs_duracao.png" alt="grafico 4" />
+  <p><b>Fonte:</b> Material elaborado pela autora.</p>
+</div>
+
+Surpreendentemente, não há correlação direta entre o número de testes e a duração do pipeline. O commit com +150 testes rodou em ~37s, enquanto o teste lento com sleep(30) demorou 66s mesmo com poucos testes. Isso demonstra que a composição e a natureza dos testes (operações de I/O, espera ativa, processamento pesado) impactam muito mais o tempo de resposta do que a simples quantidade de casos de teste.
+
+Os gráficos se encontram na pasta [graficos/](graficos):
 
 - [Tempo total do pipeline](graficos/grafico1_tempo_total.png)
 - [Tempo médio por job](graficos/grafico2_tempo_por_job.png)
