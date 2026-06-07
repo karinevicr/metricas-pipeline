@@ -2,148 +2,149 @@
 
 ## Introdução
 
-Este é um projeto de analise de pipeline CI/CD para a uma API de tarefas em Flask. O objetivo e registrar execucoes reais do GitHub Actions, coletar metricas do workflow, gerar graficos e responder perguntas sobre desempenho, falhas e feedback para desenvolvimento.
+Este projeto analisa um pipeline CI/CD real de uma API de tarefas em Flask. O objetivo é registrar execuções reais do GitHub Actions, coletar métricas do workflow, gerar gráficos e interpretar o comportamento do pipeline sob diferentes condições de teste, falha e execução.
 
-### Entregaveis
+## Entregáveis
+
+Para facilitar a avaliação e navegação pelo repositorio, esta seção concentra os links principais do projeto e do experimento:
+
+- Repositório GitHub: [karinevicr/metricas-pipeline](https://github.com/karinevicr/metricas-pipeline)
+- Workflow do GitHub Actions: [.github/workflows/ci-pipeline.yml](.github/workflows/ci-pipeline.yml)
+- Script de coleta das métricas: [scripts/coleta_metricas.py](scripts/coleta_metricas.py)
+- Base de dados gerada em CSV: [dados/metricas.csv](dados/metricas.csv)
+- Gráficos produzidos:
+	- [Tempo total do pipeline](graficos/grafico1_tempo_total.png)
+	- [Tempo médio por job](graficos/grafico2_tempo_por_job.png)
+	- [Taxa de sucesso vs falha](graficos/grafico3_taxa_sucesso.png)
+	- [Quantidade de testes vs duração](graficos/grafico4_testes_vs_duracao.png)
+- Relatório técnico em Markdown: [relatorio-tecnico.md](relatorio-tecnico.md)
+- Como reproduzir o experimento: veja a seção [Como reproduzir](#como-reproduzir-o-experimento)
 
 
+## Visão geral do pipeline
 
-## Como executar o projeto
+O workflow principal está em [.github/workflows/ci-pipeline.yml](.github/workflows/ci-pipeline.yml) e possui dois jobs independentes: `tests` e `lint`.
 
-Instale as dependencias do projeto e rode os comandos abaixo na raiz do repositório.
+Como não existe dependência declarada entre eles com `needs`, os dois jobs são disparados em paralelo pelo GitHub Actions. Dentro de cada job, os steps executam em sequência.
+
+O fluxo atual é composto por:
+
+- checkout do código em cada job
+- setup do Python 3.12 com cache de `pip`
+- instalação das dependências em cada job
+- execução do `pytest` no job `tests`
+- upload do artefato `test-results` no job `tests`
+- execução do `flake8` no job `lint`
+
+O script de coleta usa a API do GitHub para ler as execuções do workflow, buscar os jobs, ler os steps de cada job, obter o artefato de testes quando ele existe e salvar tudo em [dados/metricas.csv](dados/metricas.csv).
+
+## Resumo dos dados coletados
+
+O conjunto atual de dados contém 12 execuções do workflow e 204 linhas no CSV.
+
+Isso acontece porque a coleta está no nível de step: cada execução gera várias linhas, uma para cada step de cada job. Como o workflow possui dois jobs e vários steps por job, o arquivo cresce rapidamente mesmo com poucas execuções.
+
+### Indicadores consolidados por execução
+
+- Total de execuções analisadas: 12
+- Execuções com sucesso: 9
+- Execuções com falha: 3
+- Duração média por execução: 33,33 s
+- Mediana da duração por execução: 30,5 s
+- Menor duração observada: 9 s
+- Maior duração observada: 61 s
+
+### Distribuição das falhas
+
+- `test_failure`: 2 ocorrências
+- `setup_failure`: 1 ocorrência
+
+### Tabela das 12 execuções mais recentes
+
+| Run ID | Commit | Mensagem | Status | Duração estimada | Artefato |
+| --- | --- | --- | --- | --- | --- |
+| 27095948645 | 19427f0 | exp: pipeline com testes passando | success | 31 s | 410 bytes |
+| 27095909785 | db2f504 | exp: teste que consome muita memoria | success | 32 s | 427 bytes |
+| 27095595987 | e206ca3 | exp: pipeline sem testes | failure | 23 s | 0 bytes |
+| 27095465456 | a555129 | exp: roda testes em sequencia | success | 55 s | 412 bytes |
+| 27095372028 | a65917c | exp: altera ordem de jobs | success | 27 s | 411 bytes |
+| 27095241514 | 05f2b19 | exp: teste lento (30 segundos) | success | 61 s | 413 bytes |
+| 27095230828 | 7dd2851 | exp: teste lento (15 segundos) | success | 40 s | 412 bytes |
+| 27095220609 | 41efb57 | exp: teste lento (5 segundos) | success | 34 s | 411 bytes |
+| 27095126439 | b083c6b | exp: requirements quebrado (lib fake) | failure | 9 s | 0 bytes |
+| 27095052830 | a2de59c | exp: + 150 testes | success | 30 s | 874 bytes |
+| 27095034559 | 595eca1 | exp: + 50 testes | success | 30 s | 581 bytes |
+| 27094915826 | b8468c3 | exp: teste falhando | failure | 28 s | 0 bytes |
+
+## Análise dos resultados atuais
+
+### 1. Etapa que mais pesa no tempo total
+
+O maior custo continua concentrado na execução dos testes. Isso aparece com clareza nos experimentos com teste lento, principalmente no run `27095241514`, que atingiu 61 s por causa da espera artificial de 30 segundos. Já as falhas interrompem o fluxo antes do fim natural, então tendem a encurtar o tempo total.
+
+### 2. Impacto do cache
+
+O workflow já usa cache de `pip` em todas as execuções do experimento atual. Isso melhora a instalação de dependências, mas não permite comparar diretamente um cenário com cache contra outro sem cache, porque não há grupo controle na amostra atual.
+
+### 3. Impacto do paralelismo
+
+Os jobs `tests` e `lint` estão separados e são executados em paralelo no GitHub Actions. Na prática, isso ajuda a reduzir o tempo total percebido quando um job não depende do outro. Ainda assim, o ganho exato precisa ser interpretado com cuidado, porque ambos compartilham uma parte importante da preparação do ambiente, e a amostra continua pequena.
+
+### 4. Tipo de falha mais frequente
+
+As falhas mais frequentes foram de teste. Isso indica que a maior parte dos problemas detectados pelo pipeline está ligada ao comportamento da aplicação e dos testes automatizados, e não à configuração básica do workflow.
+
+### 5. Feedback para o desenvolvimento
+
+Para desenvolvimento local e validação contínua, um pipeline com média próxima de 33 s ainda fornece feedback razoavelmente rápido. O ponto de atenção são os cenários artificiais, que ampliam a duração e tornam a iteração menos confortável quando o teste fica propositalmente mais pesado.
+
+## Limitações do experimento
+
+- A amostra continua pequena, com 12 execuções.
+- O CSV é granular por step, então não representa uma linha por execução.
+- Não há um experimento controlado com e sem cache no mesmo conjunto de entradas.
+- O paralelismo ainda precisa ser comparado com mais runs após a alteração do workflow.
+- Algumas métricas de testes dependem do artefato `test-results`, então podem variar conforme o sucesso do job e a disponibilidade do artefato.
+
+## Como reproduzir o experimento
+
+1. Clone o repositório e instale as dependências:
+
+```bash
+git clone https://github.com/karinevicr/metricas-pipeline.git
+```
 
 ```bash
 pip install -r requirements.txt
-python src/app.py
 ```
 
-Em outra janela de terminal, para validar a aplicacao com testes:
+2. Execute a API e valide os testes localmente, se desejar conferir o comportamento da aplicação:
 
 ```bash
+python src/app.py
 python -m pytest -q
 ```
 
-Para coletar as metricas do GitHub Actions, configure `scripts/.env` com `GITHUB_TOKEN` e `REPO_NAME` e execute:
+3. Configure [scripts/.env](scripts/.env) com `GITHUB_TOKEN` e `REPO_NAME` para permitir a coleta de dados do GitHub Actions.
+
+4. Rode o coletor para gerar ou atualizar [dados/metricas.csv](dados/metricas.csv):
 
 ```bash
 python scripts/coleta_metricas.py
 ```
 
-Para gerar os graficos a partir do CSV coletado:
+5. Gere os gráficos a partir do CSV:
 
 ```bash
 python scripts/gerar_graficos.py
 ```
 
-## O que o pipeline faz
-
-O workflow principal esta em [.github/workflows/ci-pipeline.yml](.github/workflows/ci-pipeline.yml) e executa dois jobs independentes, `lint` e `tests`, para permitir comparar execucao separada das verificacoes:
-
-- checkout do codigo em cada job
-- setup do Python 3.12 com cache de `pip`
-- instalacao das dependencias em cada job
-- lint com `flake8` no job `lint`
-- execucao dos testes com `pytest` no job `tests`
-- upload do artefato `test-results` no job `tests`
-
-O script de coleta usa a API do GitHub para ler as execucoes do workflow, buscar os jobs, ler os steps de cada job, ler o artefato de testes quando existe e salvar tudo em [dados/metricas.csv](dados/metricas.csv).
-
-## Resumo dos dados coletados
-
-O experimento atual registrou 12 execucoes do workflow.
-
-- 7 execucoes com sucesso
-- 5 execucoes com falha
-- media do tempo total do pipeline: 32,4 s
-- mediana do tempo total do pipeline: 32 s
-- maior duracao observada: 60 s
-- menor duracao observada: 13 s
-
-## Evidencias reais das execucoes
-
-As tabelas abaixo apontam para os runs reais do GitHub Actions e para os commits usados no experimento.
-
-| Run ID | Commit | Status | Duracao | Run | Commit |
-| --- | --- | --- | --- | --- | --- |
-| 27048990842 | 83d469d | failure | 25 s | [abrir run](https://github.com/karinevicr/metricas-pipeline/actions/runs/27048990842) | [abrir commit](https://github.com/karinevicr/metricas-pipeline/commit/83d469d) |
-| 27048852685 | 73a99e5 | success | 32 s | [abrir run](https://github.com/karinevicr/metricas-pipeline/actions/runs/27048852685) | [abrir commit](https://github.com/karinevicr/metricas-pipeline/commit/73a99e5) |
-| 27048793074 | 777111b | success | 32 s | [abrir run](https://github.com/karinevicr/metricas-pipeline/actions/runs/27048793074) | [abrir commit](https://github.com/karinevicr/metricas-pipeline/commit/777111b) |
-| 27048669674 | 901d400 | failure | 26 s | [abrir run](https://github.com/karinevicr/metricas-pipeline/actions/runs/27048669674) | [abrir commit](https://github.com/karinevicr/metricas-pipeline/commit/901d400) |
-| 27048597435 | 7ebd17a | success | 40 s | [abrir run](https://github.com/karinevicr/metricas-pipeline/actions/runs/27048597435) | [abrir commit](https://github.com/karinevicr/metricas-pipeline/commit/7ebd17a) |
-| 27048558487 | 32663bc | success | 60 s | [abrir run](https://github.com/karinevicr/metricas-pipeline/actions/runs/27048558487) | [abrir commit](https://github.com/karinevicr/metricas-pipeline/commit/32663bc) |
-| 27048522053 | 1ef3d29 | failure | 13 s | [abrir run](https://github.com/karinevicr/metricas-pipeline/actions/runs/27048522053) | [abrir commit](https://github.com/karinevicr/metricas-pipeline/commit/1ef3d29) |
-| 27048447079 | 3322e2d | success | 36 s | [abrir run](https://github.com/karinevicr/metricas-pipeline/actions/runs/27048447079) | [abrir commit](https://github.com/karinevicr/metricas-pipeline/commit/3322e2d) |
-| 27047859538 | 692623f | failure | 27 s | [abrir run](https://github.com/karinevicr/metricas-pipeline/actions/runs/27047859538) | [abrir commit](https://github.com/karinevicr/metricas-pipeline/commit/692623f) |
-| 27047816410 | eb05e60 | success | 36 s | [abrir run](https://github.com/karinevicr/metricas-pipeline/actions/runs/27047816410) | [abrir commit](https://github.com/karinevicr/metricas-pipeline/commit/eb05e60) |
-| 27047637253 | 39a2b4e | success | 34 s | [abrir run](https://github.com/karinevicr/metricas-pipeline/actions/runs/27047637253) | [abrir commit](https://github.com/karinevicr/metricas-pipeline/commit/39a2b4e) |
-| 27047252735 | 8a57bb4 | failure | 28 s | [abrir run](https://github.com/karinevicr/metricas-pipeline/actions/runs/27047252735) | [abrir commit](https://github.com/karinevicr/metricas-pipeline/commit/8a57bb4) |
-
-## Graficos gerados
-
-Os graficos sao gerados em [graficos/](graficos) e podem ser abertos diretamente pelo README.
-
-- [Tempo total do pipeline](graficos/grafico1_tempo_total.png)
-- [Tempo medio por job](graficos/grafico2_tempo_por_job.png)
-- [Taxa de sucesso vs falha](graficos/grafico3_taxa_sucesso.png)
-- [Quantidade de testes vs duracao](graficos/grafico4_testes_vs_duracao.png)
-
-## Respostas para o relatorio
-
-### 1. Qual etapa mais contribuiu para o tempo total do pipeline?
-
-O dado coletado agora mede o tempo total do workflow, do job e de cada step. Mesmo assim, o comportamento mais custoso continuou aparecendo na etapa de testes, principalmente no run [27048558487](https://github.com/karinevicr/metricas-pipeline/actions/runs/27048558487), que ficou em 60 s por causa do teste com espera artificial. Nos casos de falha, o pipeline terminou mais cedo, entao lint, setup ou testes interrompidos pesaram menos no total.
-
-### 2. Houve diferenca significativa entre execucoes com e sem cache?
-
-Nao foi possivel isolar isso com rigor. O workflow atual usa cache de `pip` em todas as execucoes, entao o CSV nao traz um grupo controle sem cache. Com os dados disponiveis, nao da para afirmar uma diferenca significativa entre com e sem cache.
-
-### 3. O paralelismo reduziu o tempo total? Em que condicoes?
-
-Ainda nao ha evidencia suficiente para afirmar ganho real de paralelismo, porque os novos jobs ainda repetem a mesma base de preparacao e os dados historicos foram coletados antes da separacao. Para comparar de forma real, seria preciso repetir os runs apos a mudanca e comparar o tempo total com o mesmo conjunto de entradas.
-
-### 4. Quais falhas foram mais frequentes?
-
-As falhas mais frequentes foram `lint_failure` e `test_failure`, com 2 ocorrencias cada. `setup_failure` apareceu 1 vez. Isso mostra que o pipeline sofre mais com problemas de codigo e com problemas de validacao do que com a configuracao basica do ambiente.
-
-### 5. O pipeline fornece feedback rapido o suficiente para o desenvolvedor?
-
-Em media, sim: o pipeline ficou em 32,4 s, com mediana de 32 s. Para um ciclo de desenvolvimento local isso e um feedback bom. O ponto de atencao e que alguns cenarios artificiais elevaram a duracao para 60 s, o que ja comeca a ficar menos confortavel para iteracao frequente.
-
-### 6. Que melhorias poderiam ser feitas no pipeline?
-
-As melhores melhorias agora seriam comparar os dois jobs em runs novos, reduzir a preparacao duplicada entre eles, registrar melhor a quantidade real de testes executados, testar um cenario real de cache contra um cenario sem cache e considerar paralelismo adicional quando fizer sentido.
-
-### 7. Quais limitacoes existem nos dados coletados?
-
-As principais limitacoes sao o tamanho pequeno da amostra, a ausencia de um grupo controle sem cache, a falta de um experimento de paralelismo apos a separacao dos jobs e a inconsistencia do campo de quantidade de testes em parte das execucoes.
-
-### 8. Como essa analise poderia apoiar decisoes de engenharia?
-
-Ela ajuda a decidir onde investir para reduzir tempo de feedback: cache, paralelismo, separacao de jobs, melhoria dos testes e do lint. Tambem apoia a definicao de metas de CI, como teto de duracao por workflow e criterios de alerta quando o tempo medio subir.
-
-## Hipotese inicial versus resultado observado
-
-Hipotese inicial: aumentar a quantidade de testes, o tamanho do trabalho e as verificacoes deveria alongar o pipeline de forma mais ou menos proporcional.
-
-Resultado observado: o tempo nao cresceu de forma linear. O run mais lento foi o de espera artificial em teste, e varios runs com falha terminaram mais cedo do que execucoes bem-sucedidas. Isso indica que o comportamento do pipeline e mais sensivel a interrupcoes, esperas artificiais e tipo de falha do que apenas ao volume bruto de testes.
-
-## Resultados inesperados
-
-1. As execucoes com falha foram, em media, mais rapidas que as execucoes com sucesso. Isso acontece porque o workflow para mais cedo quando encontra erro, entao o tempo total cai.
-2. O experimento com 150 testes nao foi o mais lento. O maior tempo veio do caso com espera artificial de 30 s, o que mostra que a natureza do teste pesa mais do que o numero isolado de testes.
-
-## Limitacoes do experimento
-
-- O workflow agora tem dois jobs, mas eles ainda compartilham a maior parte da preparacao, entao o ganho de paralelismo ainda precisa ser medido em novos runs.
-- O CSV agora captura duracao total do workflow, do job e de cada step.
-- O campo de contagem de testes nao ficou confiavel em todas as execucoes.
-- Nao houve um experimento controlado com e sem cache no mesmo conjunto de entradas.
-- A amostra tem apenas 12 execucoes, o que e suficiente para observacao inicial, mas nao para conclusoes estatisticamente fortes.
+6. Abra o relatório técnico em [relatorio-tecnico.md](relatorio-tecnico.md) e os gráficos da pasta [graficos/](graficos) para revisar os resultados.
 
 ## Arquivos principais
 
 - [API Flask](src/app.py)
-- [Coleta de metricas](scripts/coleta_metricas.py)
-- [Geracao de graficos](scripts/gerar_graficos.py)
+- [Coleta de métricas](scripts/coleta_metricas.py)
+- [Geração de gráficos](scripts/gerar_graficos.py)
 - [Dados coletados](dados/metricas.csv)
-- [Teste da aplicacao](tests/test_vazio.py)
+- [Teste da aplicação](tests/test_terefas.py)
