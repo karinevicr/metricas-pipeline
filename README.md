@@ -1,6 +1,12 @@
-# metricas-pipeline
+### Autora: Karine Victoria Rosa da Paixão
 
-Projeto de analise de pipeline CI para a API de tarefas em Flask. O objetivo e registrar execucoes reais do GitHub Actions, coletar metricas do workflow, gerar graficos e responder perguntas sobre desempenho, falhas e feedback para desenvolvimento.
+## Introdução
+
+Este é um projeto de analise de pipeline CI/CD para a uma API de tarefas em Flask. O objetivo e registrar execucoes reais do GitHub Actions, coletar metricas do workflow, gerar graficos e responder perguntas sobre desempenho, falhas e feedback para desenvolvimento.
+
+### Entregaveis
+
+
 
 ## Como executar o projeto
 

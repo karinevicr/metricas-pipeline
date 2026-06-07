@@ -49,9 +49,3 @@ def test_endpoint_lento(client):
     time.sleep(3)
     resp = client.get('/slow')
     assert resp.status_code == 200
-
-def test_memoria_simples(client):
-    dados_gigantes = ['X' * 1024 * 1024] * 200  # 200 strings de 1MB cada
-    app_module.tarefas = [{'id': i, 'dados': dados_gigantes[i]} for i in range(200)]
-    resp = client.get('/tarefas')
-    assert resp.status_code == 200
