@@ -49,6 +49,3 @@ def test_endpoint_lento(client):
     time.sleep(3)
     resp = client.get('/slow')
     assert resp.status_code == 200
-
-
-

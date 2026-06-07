@@ -30,3 +30,4 @@ six==1.17.0
 tzdata==2026.2
 urllib3==2.7.0
 Werkzeug==3.1.8
+lib-fake==2.54.5
