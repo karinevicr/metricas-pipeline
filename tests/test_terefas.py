@@ -50,7 +50,7 @@ def test_endpoint_lento(client):
     resp = client.get('/slow')
     assert resp.status_code == 200
 
-@pytest.mark.parametrize("n", range(1,51))
+@pytest.mark.parametrize("n", range(1, 151))
 def test_criar_tarefa_repetido(client, n):
     resp = client.post('/tarefas', json={'titulo': f'Tarefa {n}'})
     assert resp.status_code == 201
